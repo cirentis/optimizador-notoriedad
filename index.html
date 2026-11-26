@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optimizador de notoriedad · CIRENTIS</title>
+<meta name="description" content="Optimizador del mix de medios frente a la notoriedad publicitaria. Sector banca. CIRENTIS.">
+<link rel="icon" href="cirentis.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="datos_banca.js"></script>
+<style>
+:root{
+  --violeta:#6730FB; --violeta-2:#8A5CFF; --violeta-suave:#F1ECFF; --naranja:#FF6600; --verde:#00BF9E;
+  --tinta:#241F3D; --gris:#6B6880; --linea:#E4E1EE; --fondo:#F7F6FB; --blanco:#FFFFFF;
+  --c-tv:#6730FB; --c-radio:#E6B800; --c-diarios:#F48EEF; --c-exterior:#00BF9E; --c-digital:#00B9FE;
+  --serif:Cambria,"Cambria Math",Georgia,"Times New Roman",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--tinta);font-family:var(--serif);font-size:15px;line-height:1.45}
+header{background:var(--blanco);border-bottom:1px solid var(--linea);position:sticky;top:0;z-index:10}
+.barra{max-width:1280px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.barra img{height:26px}
+.marca{display:flex;flex-direction:column;line-height:1.25;gap:2px}
+.marca b{font-family:var(--sans);font-weight:800;color:var(--violeta);font-size:17px}
+.marca span{font-size:12.5px;color:var(--gris)}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button{font-family:var(--sans);font-size:14px;font-weight:600;border:0;background:none;color:var(--gris);padding:9px 12px;border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{color:var(--violeta);border-bottom-color:var(--violeta)}
+.beta{font-family:var(--sans);font-size:11px;font-weight:700;background:var(--naranja);color:#fff;border-radius:10px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+main{max-width:1280px;margin:0 auto;padding:22px 20px 60px}
+section.tab{display:none} section.tab.on{display:block}
+h1,h2,h3{font-family:var(--sans);color:var(--violeta);margin:0 0 10px}
+h1{font-size:30px;font-weight:800} h2{font-size:21px;font-weight:700} h3{font-size:16px;font-weight:700;color:var(--tinta)}
+p{margin:0 0 10px}
+.hero{background:linear-gradient(120deg,var(--violeta),#9B6BFF 70%,#F48EEF);color:#fff;border-radius:18px;padding:34px 34px 30px;margin-bottom:22px}
+.hero h1{color:#fff;font-size:34px}
+.hero p{font-size:17px;max-width:760px;opacity:.95}
+.hero .cta{margin-top:16px}
+.btn{font-family:var(--sans);font-weight:700;font-size:14px;border:0;border-radius:24px;padding:10px 20px;cursor:pointer;background:var(--violeta);color:#fff}
+.btn.claro{background:#fff;color:var(--violeta)}
+.btn.borde{background:#fff;color:var(--violeta);border:1.5px solid var(--violeta)}
+.rejilla{display:grid;gap:18px}
+.r3{grid-template-columns:repeat(3,minmax(0,1fr))} .r4{grid-template-columns:repeat(4,minmax(0,1fr))} .r2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tarjeta{background:var(--blanco);border:1px solid var(--linea);border-radius:14px;padding:18px 20px}
+.tarjeta.borde-v{border-top:4px solid var(--violeta)}
+.paso{font-family:var(--sans);font-weight:800;color:var(--naranja);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.aviso{background:#FFF4EC;border:1px solid #FFD2B3;border-radius:12px;padding:12px 16px;font-size:14px}
+.opt{display:grid;grid-template-columns:330px minmax(0,1fr);gap:20px;align-items:start}
+.opt>*,.rejilla>*{min-width:0}
+.panel{position:sticky;top:76px}
+label.campo{display:block;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--tinta);margin:14px 0 6px}
+.campo small{font-weight:400;color:var(--gris)}
+input[type=number],select{width:100%;font-family:var(--serif);font-size:16px;padding:8px 10px;border:1px solid var(--linea);border-radius:8px;background:#fff;color:var(--tinta)}
+input[type=range]{width:100%;accent-color:var(--violeta)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--sans);font-size:13px;border:1.5px solid var(--linea);border-radius:18px;padding:5px 11px;cursor:pointer;user-select:none;background:#fff;display:flex;align-items:center;gap:6px}
+.chip input{display:none}
+.chip .pt{width:10px;height:10px;border-radius:50%}
+.chip.on{border-color:var(--violeta);background:var(--violeta-suave)}
+.chip .tag{font-size:10.5px;color:var(--naranja);font-weight:700}
+.seg{display:flex;border:1.5px solid var(--violeta);border-radius:20px;overflow:hidden}
+.seg button{flex:1;font-family:var(--sans);font-size:12.5px;font-weight:600;border:0;background:#fff;color:var(--violeta);padding:7px 6px;cursor:pointer}
+.seg button.on{background:var(--violeta);color:#fff}
+details{margin-top:14px;border-top:1px solid var(--linea);padding-top:10px}
+summary{font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;color:var(--violeta)}
+.limite{display:grid;grid-template-columns:70px 1fr 1fr;gap:6px;align-items:center;font-size:13px;margin-top:6px}
+.limite input{font-size:13px;padding:4px 6px}
+.kpi{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px 16px}
+.kpi .v{font-family:var(--sans);font-weight:800;font-size:30px;color:var(--violeta);line-height:1.1}
+.kpi .v.nar{color:var(--naranja)} .kpi .v.ver{color:var(--verde)}
+.kpi .t{font-size:13px;color:var(--gris);margin-top:4px}
+.graf{position:relative;height:300px}
+.graf.alto{height:420px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:var(--sans);font-size:12px;text-align:right;color:#fff;background:var(--violeta);padding:8px 8px;font-weight:700}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 8px;border-bottom:1px solid var(--linea);text-align:right;white-space:nowrap}
+tr.total td{font-weight:700;border-top:2px solid var(--tinta)}
+.pill{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.nota{font-size:12.5px;color:var(--gris);margin-top:8px}
+.fila-sim{display:grid;grid-template-columns:110px 1fr 110px;gap:12px;align-items:center;margin:10px 0}
+.fila-sim b{font-family:var(--sans);font-size:14px}
+.fila-sim output{font-family:var(--sans);font-weight:700;text-align:right}
+footer{border-top:1px solid var(--linea);background:#fff}
+footer .barra{font-size:12.5px;color:var(--gris)}
+.oculto{display:none}
+@media (max-width:980px){.opt{grid-template-columns:minmax(0,1fr)}.panel{position:static}.r3,.r4{grid-template-columns:1fr 1fr}.r2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.r3,.r4{grid-template-columns:minmax(0,1fr)}.hero{padding:24px 18px}.hero h1{font-size:26px}nav{margin-left:0}main{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="barra">
+    <img src="cirentis.png" alt="CIRENTIS">
+    <div class="marca"><b>Optimizador de notoriedad <span class="beta">v0.1</span></b><span>Mix de medios frente al recuerdo publicitario · Sector banca</span></div>
+    <nav id="nav">
+      <button data-t="inicio" class="on">Inicio</button>
+      <button data-t="optimizador">Optimizador</button>
+      <button data-t="simulador">Simulador</button>
+      <button data-t="curvas">Curvas</button>
+      <button data-t="metodo">Método y fuentes</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ============================== INICIO -->
+<section class="tab on" id="t-inicio">
+  <div class="hero">
+    <h1>¿Cómo repartir el presupuesto entre medios para ganar más notoriedad?</h1>
+    <p>El optimizador de CIRENTIS reparte una inversión entre TV, radio, diarios y exterior para conseguir el máximo recuerdo publicitario. Se apoya en curvas de respuesta estimadas con datos reales del sector banca.</p>
+    <div class="cta"><button class="btn claro" onclick="ir('optimizador')">Empezar a optimizar</button></div>
+  </div>
+  <div class="rejilla r3">
+    <div class="tarjeta borde-v"><div class="paso">1 · Qué hace</div><h3>Reparte el presupuesto</h3><p>Indica el presupuesto y las semanas de campaña. La herramienta busca el reparto entre medios que da más puntos de recuerdo publicitario y lo compara con el mix habitual del sector.</p></div>
+    <div class="tarjeta borde-v"><div class="paso">2 · De dónde sale</div><h3>Curvas de sector banca</h3><p>Una curva por medio, estimada con siete bancos: notoriedad por medio (IOPE), inversión (InfoAdex) y GRP de TV (Kantar). Cada curva tiene un techo: a partir de cierto nivel, cada euro rinde menos.</p></div>
+    <div class="tarjeta borde-v"><div class="paso">3 · Cómo se usa</div><h3>Optimiza, simula y compara</h3><p>Pide el mix recomendado, prueba tu propio reparto en el simulador y mira las curvas de cada medio. También indica cuántas semanas tarda cada medio en dar el 80 % de su efecto, porque la notoriedad se acumula.</p></div>
+  </div>
+  <div class="aviso" style="margin-top:18px"><b>Versión 0.1, en pruebas.</b> Resultados orientativos para un «banco medio» del sector. Fuera de TV, la inversión semanal se ha estimado repartiendo la inversión mensual entre sus semanas. La curva de digital ajusta mal y no está activada por defecto.</div>
+</section>
+
+<!-- ============================== OPTIMIZADOR -->
+<section class="tab" id="t-optimizador">
+  <div class="opt">
+    <div class="tarjeta panel" id="panel">
+      <h2>Tu campaña</h2>
+      <label class="campo" for="pres">Presupuesto de la campaña (€)</label>
+      <input type="number" id="pres" min="10000" step="50000" value="2000000">
+      <label class="campo" for="sem">Semanas de campaña <small>(1 a 52)</small></label>
+      <input type="number" id="sem" min="1" max="52" step="1" value="12">
+      <div class="nota" id="semanal"></div>
+      <label class="campo">Medios</label>
+      <div class="chips" id="chips"></div>
+      <label class="campo">Curvas</label>
+      <div class="seg" id="segCurva"><button data-v="panel" class="on">Panel del sector</button><button data-v="bancos">Bancos por separado</button></div>
+      <label class="campo" for="fmax">Inversión máxima por medio <small>(× la media semanal del sector)</small></label>
+      <input type="range" id="fmax" min="1" max="6" step="0.5" value="3"><div class="nota" id="fmaxT"></div>
+      <label class="campo" for="fmin">Inversión mínima por medio <small>(× la media semanal del sector)</small></label>
+      <input type="range" id="fmin" min="0" max="1" step="0.1" value="0"><div class="nota" id="fminT"></div>
+      <details>
+        <summary>Límites a medida por medio (k€ por semana)</summary>
+        <div class="nota">Mínimo y máximo de inversión semanal en cada medio. Si lo dejas vacío, se usan los factores de arriba.</div>
+        <div id="limites"></div>
+      </details>
+    </div>
+
+    <div>
+      <div class="rejilla r4" id="kpis"></div>
+      <div class="rejilla r2" style="margin-top:18px">
+        <div class="tarjeta"><h3>Mix recomendado</h3><div class="graf"><canvas id="gDonut"></canvas></div></div>
+        <div class="tarjeta"><h3>Inversión semanal: mix habitual del sector frente al recomendado</h3><div class="graf"><canvas id="gComp"></canvas></div></div>
+      </div>
+      <div class="tarjeta" style="margin-top:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Detalle por medio</h3><button class="btn borde" onclick="descargar()">Descargar resultados (CSV)</button></div>
+        <div style="overflow-x:auto;margin-top:10px"><table id="tabla"></table></div>
+        <div class="nota">Recuerdo: puntos de recuerdo publicitario (IOPE) que aporta cada medio a un banco medio, con la inversión semanal sostenida. Rendimiento marginal: puntos que daría añadir 10 k€ más a la semana en ese medio. Semanas para el 80 %: cuánto tarda el medio en acumular el 80 % de su efecto.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== SIMULADOR -->
+<section class="tab" id="t-simulador">
+  <h2>Simulador: ¿y si…?</h2>
+  <p>Mueve la inversión semanal de cada medio y compara el resultado con el mix recomendado para el mismo presupuesto. Se usan las mismas semanas, curvas y límites que en el optimizador.</p>
+  <div class="rejilla r2">
+    <div class="tarjeta"><div id="sliders"></div><div class="nota" id="simNota"></div></div>
+    <div>
+      <div class="rejilla r2" id="kpisSim"></div>
+      <div class="tarjeta" style="margin-top:18px"><h3>Recuerdo por medio: tu mix frente al recomendado</h3><div class="graf"><canvas id="gSim"></canvas></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CURVAS -->
+<section class="tab" id="t-curvas">
+  <h2>Curvas de respuesta del sector banca</h2>
+  <p>Recuerdo publicitario que aporta cada medio según la inversión semanal sostenida. El punto marca la inversión semanal media del sector.</p>
+  <div class="tarjeta"><div class="graf alto"><canvas id="gCurvas"></canvas></div></div>
+  <div class="tarjeta" style="margin-top:18px"><div style="overflow-x:auto"><table id="tablaCurvas"></table></div>
+    <div class="nota">Curva: recuerdo = e<sup>A − B / inversión semanal</sup>. Techo = e<sup>A</sup>. Inflexión = B/2: hasta ahí cada euro rinde cada vez más; a partir de ahí, cada vez menos. Arrastre semanal: parte de la notoriedad de una semana que sigue la siguiente.</div></div>
+</section>
+
+<!-- ============================== MÉTODO -->
+<section class="tab" id="t-metodo">
+  <h2>Método y fuentes</h2>
+  <div class="rejilla r2">
+    <div class="tarjeta">
+      <h3>Cómo se construyen las curvas</h3>
+      <ol>
+        <li><b>Un modelo por medio y banco.</b> Notoriedad publicitaria del medio (IOPE) frente a la inversión en ese medio con arrastre. En TV la inversión es GRP × coste medio por GRP.</li>
+        <li><b>Reparto del recuerdo.</b> El recuerdo publicitario total de cada banco se reparte entre medios con correlaciones simples y parciales.</li>
+        <li><b>Aporte de la publicidad.</b> Cada modelo separa la parte debida a la inversión del nivel base del banco.</li>
+        <li><b>Panel del sector.</b> Por medio, un solo modelo con los siete bancos. Cada banco tiene su propia base y el efecto de la inversión es común.</li>
+        <li><b>Curva.</b> Se pasa a semanas y se ajusta recuerdo = e<sup>A − B/x</sup> con todas las semanas de los siete bancos. La comprobación («bancos por separado») usa solo los bancos con modelo fiable propio.</li>
+      </ol>
+    </div>
+    <div class="tarjeta">
+      <h3>Cómo optimiza</h3>
+      <p>El presupuesto semanal (presupuesto ÷ semanas) se divide en 400 tramos. Una búsqueda exhaustiva por programación dinámica encuentra el reparto que maximiza la suma del recuerdo de los medios, dentro de los límites que fijes. Encuentra el mejor reparto aunque las curvas tengan forma de S.</p>
+      <p>El recuerdo de cada medio es el de su curva con la inversión semanal sostenida. Por defecto, ningún medio puede pasar de 3 veces la inversión media semanal del sector, para no salir del rango que han visto los datos. El factor se puede cambiar. La columna «semanas para el 80 %» indica cuánto tarda cada medio en acumular su efecto: en campañas cortas, los medios lentos rinden menos de lo que dice la curva.</p>
+      <h3 style="margin-top:14px">Fuentes</h3>
+      <p>IOPE (notoriedad por medio y recuerdo publicitario) · InfoAdex (inversión por medio) · Kantar (GRP de TV). Bancos: BBVA, Sabadell, CaixaBank, Santander, ING, Bankinter y Abanca. Modelos de ene-2024 a mar-2026; curvas semanales de ene-2025 a mar-2026.</p>
+      <h3 style="margin-top:14px">Limitaciones</h3>
+      <ul>
+        <li>Es la respuesta de un «banco medio». Para un banco concreto, el punto de partida (nivel base) es el suyo.</li>
+        <li>Fuera de TV, la inversión semanal es el mes repartido entre sus semanas.</li>
+        <li>Digital: IOPE lo mide agregado e InfoAdex no recoge search. Su curva de sector ajusta mal (R² 0,02).</li>
+        <li>Revistas y cine no tienen curva: la inversión del sector es mínima o la relación no es significativa.</li>
+        <li>No incluye efectos de creatividad, sinergias entre medios ni competencia.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="barra"><img src="cirentis.png" alt="CIRENTIS" style="height:18px"><span>Optimizador de notoriedad · v0.1 · Sector banca · Datos generados el <span id="fgen"></span>. Los datos que introduces no se guardan: todo se calcula en tu navegador.</span></div></footer>
+
+<script>
+const D = window.DATOS;
+const COL = {TV:"#6730FB", Radio:"#E6B800", Diarios:"#F48EEF", Exterior:"#00BF9E", Digital:"#00B9FE"};
+const MEDIOS = D.medios.filter(m => m.curva !== "No" && m.panel);
+const ST = {curva:"panel", act:new Set(MEDIOS.filter(m => m.curva === "Sí").map(m => m.medio)), lim:{}, sim:null};
+const nf = (v, d=0) => (isFinite(v) ? v : 0).toLocaleString("es-ES", {minimumFractionDigits:d, maximumFractionDigits:d});
+const eur = v => nf(v) + " €";
+document.getElementById("fgen").textContent = D.generado;
+
+// ---------- navegación
+function ir(t){ document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  document.querySelectorAll("section.tab").forEach(s => s.classList.toggle("on", s.id === "t-" + t));
+  if (t === "optimizador") calcula(); if (t === "simulador") pintaSim(); if (t === "curvas") pintaCurvas(); window.scrollTo(0, 0); }
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => ir(b.dataset.t));
+
+// ---------- modelo
+const par = m => m[ST.curva];
+const f = (m, x) => x <= 0 ? 0 : Math.exp(par(m).A - par(m).B / x);             // recuerdo con x k€/sem sostenidos
+const g = (m, x, W) => f(m, x);   // v0.1: recuerdo semanal con la inversión sostenida (lectura directa de la curva)
+const sem80 = m => Math.log(0.2) / Math.log(m.lw);   // semanas hasta el 80 % del efecto
+const fac = id => +document.getElementById(id).value;
+function limites(m){ const L = ST.lim[m.medio] || {};
+  return [L.min ?? fac("fmin") * m.xm, L.max ?? fac("fmax") * m.xm]; }
+function optimiza(bw, W, act){
+  const N = 400, h = bw / N, M = act.length;
+  const val = act.map(m => { const [lo, hi] = limites(m);
+    return Array.from({length:N+1}, (_, k) => (k*h >= lo - 1e-9 && k*h <= hi + 1e-9) ? g(m, k*h, W) : -Infinity); });
+  let best = val[0].slice(), arg = [val[0].map((_, k) => k)];
+  for (let i = 1; i < M; i++){
+    const nb = new Array(N+1).fill(-Infinity), na = new Array(N+1).fill(0);
+    for (let j = 0; j <= N; j++) for (let k = 0; k <= j; k++){
+      const v = best[j-k] + val[i][k]; if (v > nb[j]){ nb[j] = v; na[j] = k; } }
+    best = nb; arg.push(na);
+  }
+  let j = N; if (!isFinite(best[j])) return null;
+  const x = new Array(M);
+  for (let i = M-1; i >= 1; i--){ const k = arg[i][j]; x[i] = k*h; j -= k; } x[0] = j*h;
+  return x;
+}
+function mixSector(bw, act){ const s = act.reduce((a, m) => a + m.xm, 0); return act.map(m => bw * m.xm / s); }
+
+// ---------- controles
+const chips = document.getElementById("chips");
+MEDIOS.forEach(m => {
+  const l = document.createElement("label"); l.className = "chip" + (ST.act.has(m.medio) ? " on" : "");
+  l.innerHTML = `<input type="checkbox" ${ST.act.has(m.medio) ? "checked" : ""}><span class="pt" style="background:${COL[m.medio]}"></span>${m.medio}${m.curva === "Débil" ? ' <span class="tag">curva débil</span>' : ""}`;
+  l.querySelector("input").onchange = e => { e.target.checked ? ST.act.add(m.medio) : ST.act.delete(m.medio); l.classList.toggle("on", e.target.checked); ST.sim = null; calcula(); };
+  chips.appendChild(l);
+});
+const lim = document.getElementById("limites");
+lim.innerHTML = '<div class="limite"><span></span><b style="font-size:12px">Mínimo</b><b style="font-size:12px">Máximo</b></div>' +
+  MEDIOS.map(m => `<div class="limite"><span>${m.medio}</span><input type="number" min="0" step="5" data-m="${m.medio}" data-k="min" placeholder="auto"><input type="number" min="0" step="5" data-m="${m.medio}" data-k="max" placeholder="auto"></div>`).join("");
+lim.querySelectorAll("input").forEach(i => i.oninput = () => { const v = i.value === "" ? undefined : +i.value;
+  ST.lim[i.dataset.m] = {...(ST.lim[i.dataset.m] || {}), [i.dataset.k]: v}; calcula(); });
+function seg(id, key){ document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => {
+  ST[key] = b.dataset.v; document.querySelectorAll(`#${id} button`).forEach(x => x.classList.toggle("on", x === b)); ST.sim = null; calcula(); }); }
+seg("segCurva", "curva");
+["pres", "sem", "fmax", "fmin"].forEach(id => document.getElementById(id).oninput = () => { ST.sim = null; calcula(); });
+
+// ---------- gráficos
+Chart.defaults.font.family = 'Cambria, Georgia, serif'; Chart.defaults.color = "#241F3D";
+const CH = {};
+function chart(id, cfg){ if (CH[id]) CH[id].destroy(); CH[id] = new Chart(document.getElementById(id), cfg); return CH[id]; }
+
+let R = null;
+function calcula(){
+  const P = Math.max(0, +document.getElementById("pres").value || 0), W = Math.min(52, Math.max(1, Math.round(+document.getElementById("sem").value || 1)));
+  const bw = P / W / 1000, act = MEDIOS.filter(m => ST.act.has(m.medio));
+  document.getElementById("semanal").textContent = `Inversión semanal: ${nf(bw)} k€ durante ${W} semana${W > 1 ? "s" : ""}.`;
+  document.getElementById("fmaxT").textContent = `Hasta ${nf(fac("fmax"), 1)} veces lo que invierte de media un banco del sector. Evita salir del rango que han visto los datos.`;
+  document.getElementById("fminT").textContent = fac("fmin") > 0 ? `Al menos ${nf(fac("fmin"), 1)} veces la media del sector en cada medio elegido.` : "Sin mínimo: un medio puede quedarse a cero.";
+  const kp = document.getElementById("kpis");
+  if (!act.length || bw <= 0){ kp.innerHTML = '<div class="aviso" style="grid-column:1/-1">Elige al menos un medio e indica un presupuesto.</div>'; return; }
+  const x = optimiza(bw, W, act);
+  if (!x){ kp.innerHTML = `<div class="aviso" style="grid-column:1/-1">Los límites no son compatibles con el presupuesto (${nf(bw)} k€ a la semana): la suma de los máximos de los medios elegidos es ${nf(act.reduce((a, m) => a + limites(m)[1], 0))} k€ y la de los mínimos, ${nf(act.reduce((a, m) => a + limites(m)[0], 0))} k€. Sube la inversión máxima, añade medios, alarga la campaña o baja el mínimo.</div>`; return; }
+  const xs = mixSector(bw, act);
+  const y = act.map((m, i) => g(m, x[i], W)), ys = act.map((m, i) => g(m, xs[i], W));
+  const Y = y.reduce((a, b) => a + b, 0), Ys = ys.reduce((a, b) => a + b, 0);
+  R = {P, W, bw, act, x, xs, y, ys, Y, Ys};
+  kp.innerHTML = `
+    <div class="kpi"><div class="v">${nf(Y, 1)}</div><div class="t">puntos de recuerdo publicitario con el mix recomendado</div></div>
+    <div class="kpi"><div class="v nar">${nf(Ys, 1)}</div><div class="t">puntos con el mix habitual del sector y el mismo presupuesto</div></div>
+    <div class="kpi"><div class="v ver">${Ys > 0 ? "+" + nf((Y / Ys - 1) * 100, 0) + " %" : "—"}</div><div class="t">más recuerdo al optimizar el mix (+${nf(Y - Ys, 1)} puntos)</div></div>
+    <div class="kpi"><div class="v">${Y > 0 ? nf(bw / Y, 1) : "—"}</div><div class="t">k€ a la semana por cada punto de recuerdo</div></div>`;
+  chart("gDonut", {type:"doughnut", data:{labels:act.map(m => m.medio), datasets:[{data:x.map(v => +v.toFixed(1)), backgroundColor:act.map(m => COL[m.medio]), borderWidth:2}]},
+    options:{maintainAspectRatio:false, cutout:"58%", plugins:{legend:{position:innerWidth < 700 ? "bottom" : "right"}, tooltip:{callbacks:{label:c => `${c.label}: ${nf(c.raw)} k€/sem. (${nf(c.raw / bw * 100)} %)`}}}}});
+  chart("gComp", {type:"bar", data:{labels:act.map(m => m.medio), datasets:[
+      {label:"Mix habitual del sector", data:xs, backgroundColor:"#D9D6E6", borderRadius:4},
+      {label:"Mix recomendado", data:x, backgroundColor:act.map(m => COL[m.medio]), borderRadius:4}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{position:"top"}, tooltip:{callbacks:{label:c => `${c.dataset.label}: ${nf(c.raw)} k€/sem.`}}},
+      scales:{y:{beginAtZero:true, title:{display:true, text:"k€ por semana"}, grid:{color:"#EEE"}}, x:{grid:{display:false}}}}});
+  const rows = act.map((m, i) => ({m, x:x[i], xs:xs[i], y:y[i], ys:ys[i], marg:g(m, x[i] + 10, W) - y[i], pt:f(m, x[i]) / Math.exp(par(m).A)}));
+  document.getElementById("tabla").innerHTML = `<tr><th>Medio</th><th>k€/sem.</th><th>Total campaña</th><th>% del mix</th><th>Recuerdo (pts)</th><th>% del techo</th><th>Rend. marginal (pts por +10 k€)</th><th>Semanas para el 80 %</th><th>Mix sector (k€/sem.)</th><th>Recuerdo con mix sector</th></tr>` +
+    rows.map(r => `<tr><td><span class="pill" style="background:${COL[r.m.medio]}"></span>${r.m.medio}${r.m.curva === "Débil" ? " (curva débil)" : ""}</td><td>${nf(r.x, 1)}</td><td>${eur(r.x * 1000 * W)}</td><td>${nf(r.x / bw * 100)} %</td><td>${nf(r.y, 2)}</td><td>${nf(r.pt * 100)} %</td><td>${nf(r.marg, 2)}</td><td>${nf(sem80(r.m))}</td><td>${nf(r.xs, 1)}</td><td>${nf(r.ys, 2)}</td></tr>`).join("") +
+    `<tr class="total"><td>Total</td><td>${nf(bw, 1)}</td><td>${eur(P)}</td><td>100 %</td><td>${nf(Y, 2)}</td><td></td><td></td><td></td><td>${nf(bw, 1)}</td><td>${nf(Ys, 2)}</td></tr>`;
+  if (document.getElementById("t-simulador").classList.contains("on")) pintaSim();
+  if (document.getElementById("t-curvas").classList.contains("on")) pintaCurvas();
+}
+
+function descargar(){
+  if (!R) return;
+  const L = [["Medio", "k€ por semana", "Total campaña (€)", "% del mix", "Recuerdo (pts)", "Mix sector (k€/sem.)", "Recuerdo con mix sector (pts)"]];
+  R.act.forEach((m, i) => L.push([m.medio, R.x[i].toFixed(2), Math.round(R.x[i] * 1000 * R.W), (R.x[i] / R.bw * 100).toFixed(1), R.y[i].toFixed(3), R.xs[i].toFixed(2), R.ys[i].toFixed(3)]));
+  L.push([]); L.push(["Presupuesto (€)", R.P]); L.push(["Semanas", R.W]); L.push(["Curvas", ST.curva === "panel" ? "Panel del sector" : "Bancos por separado"]);
+  L.push(["Inversión máxima (× media sector)", fac("fmax")]); L.push(["Inversión mínima (× media sector)", fac("fmin")]);
+  const csv = "﻿" + L.map(r => r.join(";")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = "optimizador_notoriedad_banca.csv"; a.click();
+}
+
+// ---------- simulador
+function pintaSim(){
+  if (!R) return;
+  const {act, W, bw} = R;
+  if (!ST.sim || ST.sim.length !== act.length) ST.sim = R.xs.slice();
+  const cont = document.getElementById("sliders");
+  const maxS = Math.max(bw * 1.5, ...act.map(m => m.xm * 3));
+  cont.innerHTML = act.map((m, i) => `<div class="fila-sim"><b><span class="pill" style="background:${COL[m.medio]}"></span>${m.medio}</b>
+     <input type="range" min="0" max="${Math.round(maxS)}" step="1" value="${ST.sim[i].toFixed(0)}" data-i="${i}"><output id="o${i}">${nf(ST.sim[i])} k€</output></div>`).join("") +
+     `<button class="btn borde" id="simReset" style="margin-top:6px">Volver al mix habitual del sector</button>`;
+  cont.querySelectorAll("input").forEach(s => s.oninput = () => { ST.sim[+s.dataset.i] = +s.value; document.getElementById("o" + s.dataset.i).textContent = nf(+s.value) + " k€"; simCalc(); });
+  document.getElementById("simReset").onclick = () => { ST.sim = R.xs.slice(); pintaSim(); };
+  simCalc();
+}
+function simCalc(){
+  const {act, W} = R, xs = ST.sim, bw2 = xs.reduce((a, b) => a + b, 0);
+  const y = act.map((m, i) => g(m, xs[i], W)), Y = y.reduce((a, b) => a + b, 0);
+  const xo = bw2 > 0 ? optimiza(bw2, W, act) : act.map(() => 0);
+  const yo = act.map((m, i) => xo ? g(m, xo[i], W) : 0), Yo = yo.reduce((a, b) => a + b, 0);
+  document.getElementById("simNota").textContent = `Tu mix: ${nf(bw2)} k€ a la semana, ${eur(bw2 * 1000 * W)} en ${W} semanas.`;
+  document.getElementById("kpisSim").innerHTML = `<div class="kpi"><div class="v nar">${nf(Y, 1)}</div><div class="t">puntos de recuerdo con tu mix</div></div>
+    <div class="kpi"><div class="v">${nf(Yo, 1)}</div><div class="t">puntos con el mix recomendado para la misma inversión (${Y > 0 ? "+" + nf((Yo / Y - 1) * 100) + " %" : "—"})</div></div>`;
+  chart("gSim", {type:"bar", data:{labels:act.map(m => m.medio), datasets:[{label:"Tu mix", data:y, backgroundColor:"#FFB27F", borderRadius:4},
+      {label:"Mix recomendado", data:yo, backgroundColor:act.map(m => COL[m.medio]), borderRadius:4}]},
+    options:{maintainAspectRatio:false, animation:false, plugins:{tooltip:{callbacks:{label:c => `${c.dataset.label}: ${nf(c.raw, 2)} pts`}}},
+      scales:{y:{beginAtZero:true, title:{display:true, text:"Puntos de recuerdo"}}, x:{grid:{display:false}}}}});
+}
+
+// ---------- curvas
+function pintaCurvas(){
+  const ms = MEDIOS, xmax = Math.ceil(Math.max(...ms.filter(m => m.curva === "Sí").map(m => par(m).x80)) * 1.1 / 50) * 50;
+  const ds = [];
+  ms.forEach(m => { const pts = []; for (let i = 0; i <= 120; i++){ const xx = xmax * i / 120; pts.push({x:xx, y:f(m, xx)}); }
+    ds.push({label:m.medio + (m.curva === "Débil" ? " (débil)" : ""), data:pts, borderColor:COL[m.medio], borderWidth:m.curva === "Débil" ? 1.5 : 3, borderDash:m.curva === "Débil" ? [5, 4] : [], pointRadius:0, showLine:true, tension:.3}); });
+  ms.forEach(m => ds.push({label:m.medio + " · media del sector", data:[{x:m.xm, y:f(m, m.xm)}], backgroundColor:COL[m.medio], borderColor:"#241F3D", pointRadius:6, showLine:false}));
+  chart("gCurvas", {type:"scatter", data:{datasets:ds}, options:{maintainAspectRatio:false,
+    plugins:{legend:{labels:{filter:i => !i.text.includes("media del sector")}}, tooltip:{callbacks:{label:c => `${c.dataset.label}: ${nf(c.raw.x)} k€/sem. → ${nf(c.raw.y, 2)} pts`}}},
+    scales:{x:{type:"linear", min:0, max:xmax, title:{display:true, text:"Inversión semanal sostenida (k€)"}}, y:{beginAtZero:true, title:{display:true, text:"Recuerdo publicitario aportado (pts)"}}}}});
+  document.getElementById("tablaCurvas").innerHTML = `<tr><th>Medio</th><th>Curva</th><th>Techo (pts)</th><th>Inflexión (k€/sem.)</th><th>80 % del techo (k€/sem.)</th><th>Inversión media sector (k€/sem.)</th><th>Recuerdo en la media (pts)</th><th>Arrastre semanal</th><th>Semanas para el 80 %</th><th>R² del ajuste</th></tr>` +
+    ms.map(m => { const p = par(m); return `<tr><td><span class="pill" style="background:${COL[m.medio]}"></span>${m.medio}</td><td>${m.curva === "Sí" ? "Fiable" : "Débil"}</td><td>${nf(p.techo, 1)}</td><td>${nf(p.B / 2)}</td><td>${nf(p.x80)}</td><td>${nf(m.xm)}</td><td>${nf(f(m, m.xm), 1)}</td><td>${nf(m.lw * 100)} %</td><td>${nf(sem80(m))}</td><td>${nf(p.r2, 2)}</td></tr>`; }).join("");
+}
+calcula();
+if (location.hash && document.getElementById("t-" + location.hash.slice(1))) ir(location.hash.slice(1));
+</script>
+</body>
+</html>
