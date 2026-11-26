@@ -1,7 +1,8 @@
 // Generado por opt_datos.py. No editar a mano.
-window.DATOS = {
+window.SECTORES = window.SECTORES || {};
+window.SECTORES.banca = {
  "sector": "Banca",
- "bancos": [
+ "marcas": [
   "BBVA",
   "Sabadell",
   "CaixaBank",
@@ -9,6 +10,21 @@ window.DATOS = {
   "ING",
   "Bankinter",
   "Abanca"
+ ],
+ "marca_media": "banco medio",
+ "marcas_txt": "siete bancos",
+ "separado": "Bancos por separado",
+ "una_marca": "un banco",
+ "activos": [
+  "TV",
+  "Radio",
+  "Diarios",
+  "Exterior"
+ ],
+ "aviso": "La curva de digital ajusta mal y no está activada por defecto.",
+ "limites": [
+  "Digital: IOPE lo mide agregado e InfoAdex no recoge search. Su curva de sector ajusta mal (R² 0,02).",
+  "Revistas y cine no tienen curva: la inversión del sector es mínima o la relación no es significativa."
  ],
  "periodo": "ene-2025 a mar-2026 (curvas semanales); modelos mensuales ene-2024 a mar-2026",
  "generado": "2026-11-26",
@@ -22,6 +38,7 @@ window.DATOS = {
    "p": 4.644452120276782e-20,
    "r2w": 0.3725021375248452,
    "inv_sector_M": 51.70505244163185,
+   "activo": true,
    "panel": {
     "B": 96.40873431287353,
     "A": 3.5767066333994952,
@@ -51,6 +68,7 @@ window.DATOS = {
    "p": 4.161702236869071e-08,
    "r2w": 0.1534619699561378,
    "inv_sector_M": 3.6171986000000005,
+   "activo": true,
    "panel": {
     "B": 3.8485352004259097,
     "A": 0.7281112926637355,
@@ -80,6 +98,7 @@ window.DATOS = {
    "p": 2.770809515511622e-22,
    "r2w": 0.4067477658929811,
    "inv_sector_M": 21.605914820000002,
+   "activo": true,
    "panel": {
     "B": 40.06807259319236,
     "A": 2.348698683000893,
@@ -108,7 +127,8 @@ window.DATOS = {
    "beta": 0.1022312717552101,
    "p": 0.734839356902781,
    "r2w": 0.0006353326151641341,
-   "inv_sector_M": 2.07170772
+   "inv_sector_M": 2.07170772,
+   "activo": false
   },
   {
    "medio": "Diarios",
@@ -119,6 +139,7 @@ window.DATOS = {
    "p": 3.048071019113404e-10,
    "r2w": 0.1971761697592546,
    "inv_sector_M": 12.51205823,
+   "activo": true,
    "panel": {
     "B": 16.869237283403205,
     "A": 1.0661937963913746,
@@ -147,7 +168,8 @@ window.DATOS = {
    "beta": 0.3839151919869459,
    "p": 0.001144645943415495,
    "r2w": 0.05691681322938914,
-   "inv_sector_M": 0.25526156999999744
+   "inv_sector_M": 0.25526156999999744,
+   "activo": false
   },
   {
    "medio": "Digital",
@@ -158,6 +180,7 @@ window.DATOS = {
    "p": 3.549328946479337e-06,
    "r2w": 0.1122603270847015,
    "inv_sector_M": 71.556829,
+   "activo": false,
    "panel": {
     "B": 5.3592344890828265,
     "A": 0.7571362957117643,

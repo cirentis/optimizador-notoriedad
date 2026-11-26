@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Optimizador de notoriedad · CIRENTIS</title>
-<meta name="description" content="Optimizador del mix de medios frente a la notoriedad publicitaria. Sector banca. CIRENTIS.">
+<meta name="description" content="Optimizador del mix de medios frente a la notoriedad publicitaria. Sectores banca y seguros. CIRENTIS.">
 <link rel="icon" href="cirentis.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="datos_banca.js"></script>
+<script src="datos_seguros.js"></script>
 <style>
 :root{
   --violeta:#6730FB; --violeta-2:#8A5CFF; --violeta-suave:#F1ECFF; --naranja:#FF6600; --verde:#00BF9E;
@@ -93,7 +94,7 @@ footer .barra{font-size:12.5px;color:var(--gris)}
 <header>
   <div class="barra">
     <img src="cirentis.png" alt="CIRENTIS">
-    <div class="marca"><b>Optimizador de notoriedad <span class="beta">v0.1</span></b><span>Mix de medios frente al recuerdo publicitario · Sector banca</span></div>
+    <div class="marca"><b>Optimizador de notoriedad <span class="beta">v0.2</span></b><span>Mix de medios frente al recuerdo publicitario · Sector <span class="xSector"></span></span></div>
     <nav id="nav">
       <button data-t="inicio" class="on">Inicio</button>
       <button data-t="optimizador">Optimizador</button>
@@ -109,15 +110,16 @@ footer .barra{font-size:12.5px;color:var(--gris)}
 <section class="tab on" id="t-inicio">
   <div class="hero">
     <h1>¿Cómo repartir el presupuesto entre medios para ganar más notoriedad?</h1>
-    <p>El optimizador de CIRENTIS reparte una inversión entre TV, radio, diarios y exterior para conseguir el máximo recuerdo publicitario. Se apoya en curvas de respuesta estimadas con datos reales del sector banca.</p>
-    <div class="cta"><button class="btn claro" onclick="ir('optimizador')">Empezar a optimizar</button></div>
+    <p>El optimizador de CIRENTIS reparte una inversión entre medios para conseguir el máximo recuerdo publicitario. Se apoya en curvas de respuesta estimadas con datos reales de cada sector: banca y seguros.</p>
+    <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><button class="btn claro" onclick="ir('optimizador')">Empezar a optimizar</button>
+      <div class="seg segSector" style="background:#fff;max-width:260px;flex:1"><button data-v="banca">Banca</button><button data-v="seguros">Seguros</button></div></div>
   </div>
   <div class="rejilla r3">
     <div class="tarjeta borde-v"><div class="paso">1 · Qué hace</div><h3>Reparte el presupuesto</h3><p>Indica el presupuesto y las semanas de campaña. La herramienta busca el reparto entre medios que da más puntos de recuerdo publicitario y lo compara con el mix habitual del sector.</p></div>
-    <div class="tarjeta borde-v"><div class="paso">2 · De dónde sale</div><h3>Curvas de sector banca</h3><p>Una curva por medio, estimada con siete bancos: notoriedad por medio (IOPE), inversión (InfoAdex) y GRP de TV (Kantar). Cada curva tiene un techo: a partir de cierto nivel, cada euro rinde menos.</p></div>
+    <div class="tarjeta borde-v"><div class="paso">2 · De dónde sale</div><h3>Curvas de sector <span class="xSectorMin"></span></h3><p>Una curva por medio, estimada con <span class="xMarcasTxt"></span>: notoriedad por medio (IOPE), inversión (InfoAdex) y GRP de TV (Kantar). Cada curva tiene un techo: a partir de cierto nivel, cada euro rinde menos.</p></div>
     <div class="tarjeta borde-v"><div class="paso">3 · Cómo se usa</div><h3>Optimiza, simula y compara</h3><p>Pide el mix recomendado, prueba tu propio reparto en el simulador y mira las curvas de cada medio. También indica cuántas semanas tarda cada medio en dar el 80 % de su efecto, porque la notoriedad se acumula.</p></div>
   </div>
-  <div class="aviso" style="margin-top:18px"><b>Versión 0.1, en pruebas.</b> Resultados orientativos para un «banco medio» del sector. Fuera de TV, la inversión semanal se ha estimado repartiendo la inversión mensual entre sus semanas. La curva de digital ajusta mal y no está activada por defecto.</div>
+  <div class="aviso" style="margin-top:18px"><b>Versión 0.2, en pruebas.</b> Resultados orientativos para <span class="xUnaMedia"></span> del sector. Fuera de TV, la inversión semanal se ha estimado repartiendo la inversión mensual entre sus semanas. <span id="xAviso"></span></div>
 </section>
 
 <!-- ============================== OPTIMIZADOR -->
@@ -125,6 +127,8 @@ footer .barra{font-size:12.5px;color:var(--gris)}
   <div class="opt">
     <div class="tarjeta panel" id="panel">
       <h2>Tu campaña</h2>
+      <label class="campo">Sector</label>
+      <div class="seg segSector"><button data-v="banca">Banca</button><button data-v="seguros">Seguros</button></div>
       <label class="campo" for="pres">Presupuesto de la campaña (€)</label>
       <input type="number" id="pres" min="10000" step="50000" value="2000000">
       <label class="campo" for="sem">Semanas de campaña <small>(1 a 52)</small></label>
@@ -133,7 +137,7 @@ footer .barra{font-size:12.5px;color:var(--gris)}
       <label class="campo">Medios</label>
       <div class="chips" id="chips"></div>
       <label class="campo">Curvas</label>
-      <div class="seg" id="segCurva"><button data-v="panel" class="on">Panel del sector</button><button data-v="bancos">Bancos por separado</button></div>
+      <div class="seg" id="segCurva"><button data-v="panel" class="on">Panel del sector</button><button data-v="bancos" class="xSeparado"></button></div>
       <label class="campo" for="fmax">Inversión máxima por medio <small>(× la media semanal del sector)</small></label>
       <input type="range" id="fmax" min="1" max="6" step="0.5" value="3"><div class="nota" id="fmaxT"></div>
       <label class="campo" for="fmin">Inversión mínima por medio <small>(× la media semanal del sector)</small></label>
@@ -154,7 +158,7 @@ footer .barra{font-size:12.5px;color:var(--gris)}
       <div class="tarjeta" style="margin-top:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">Detalle por medio</h3><button class="btn borde" onclick="descargar()">Descargar resultados (CSV)</button></div>
         <div style="overflow-x:auto;margin-top:10px"><table id="tabla"></table></div>
-        <div class="nota">Recuerdo: puntos de recuerdo publicitario (IOPE) que aporta cada medio a un banco medio, con la inversión semanal sostenida. Rendimiento marginal: puntos que daría añadir 10 k€ más a la semana en ese medio. Semanas para el 80 %: cuánto tarda el medio en acumular el 80 % de su efecto.</div>
+        <div class="nota">Recuerdo: puntos de recuerdo publicitario (IOPE) que aporta cada medio a <span class="xUnaMedia"></span>, con la inversión semanal sostenida. Rendimiento marginal: puntos que daría añadir 10 k€ más a la semana en ese medio. Semanas para el 80 %: cuánto tarda el medio en acumular el 80 % de su efecto.</div>
       </div>
     </div>
   </div>
@@ -175,7 +179,7 @@ footer .barra{font-size:12.5px;color:var(--gris)}
 
 <!-- ============================== CURVAS -->
 <section class="tab" id="t-curvas">
-  <h2>Curvas de respuesta del sector banca</h2>
+  <h2>Curvas de respuesta del sector <span class="xSectorMin"></span></h2>
   <p>Recuerdo publicitario que aporta cada medio según la inversión semanal sostenida. El punto marca la inversión semanal media del sector.</p>
   <div class="tarjeta"><div class="graf alto"><canvas id="gCurvas"></canvas></div></div>
   <div class="tarjeta" style="margin-top:18px"><div style="overflow-x:auto"><table id="tablaCurvas"></table></div>
@@ -189,11 +193,12 @@ footer .barra{font-size:12.5px;color:var(--gris)}
     <div class="tarjeta">
       <h3>Cómo se construyen las curvas</h3>
       <ol>
-        <li><b>Un modelo por medio y banco.</b> Notoriedad publicitaria del medio (IOPE) frente a la inversión en ese medio con arrastre. En TV la inversión es GRP × coste medio por GRP.</li>
-        <li><b>Reparto del recuerdo.</b> El recuerdo publicitario total de cada banco se reparte entre medios con correlaciones simples y parciales.</li>
-        <li><b>Aporte de la publicidad.</b> Cada modelo separa la parte debida a la inversión del nivel base del banco.</li>
-        <li><b>Panel del sector.</b> Por medio, un solo modelo con los siete bancos. Cada banco tiene su propia base y el efecto de la inversión es común.</li>
-        <li><b>Curva.</b> Se pasa a semanas y se ajusta recuerdo = e<sup>A − B/x</sup> con todas las semanas de los siete bancos. La comprobación («bancos por separado») usa solo los bancos con modelo fiable propio.</li>
+        <li><b>Un modelo por medio y marca.</b> Notoriedad publicitaria del medio (IOPE) frente a la inversión en ese medio con arrastre. En TV la inversión es GRP × coste medio por GRP.</li>
+        <li><b>Reparto del recuerdo.</b> El recuerdo publicitario total de cada marca se reparte entre medios con correlaciones simples y parciales.</li>
+        <li><b>Aporte de la publicidad.</b> Cada modelo separa la parte debida a la inversión del nivel base de la marca.</li>
+        <li><b>Panel del sector.</b> Por medio, un solo modelo con las <span class="xMarcasTxt"></span>. Cada marca tiene su propia base y el efecto de la inversión es común.</li>
+        <li><b>Curva.</b> Se pasa a semanas y se ajusta recuerdo = e<sup>A − B/x</sup> con todas las semanas de las marcas del sector. La comprobación («<span class="xSeparadoMin"></span>») usa solo las marcas con modelo fiable propio.</li>
+        <li><b>Curvas débiles.</b> El efecto de la inversión es significativo en el panel, pero explica poco de los cambios de cada marca (R² dentro &lt; 0,10). Son orientativas.</li>
       </ol>
     </div>
     <div class="tarjeta">
@@ -201,30 +206,36 @@ footer .barra{font-size:12.5px;color:var(--gris)}
       <p>El presupuesto semanal (presupuesto ÷ semanas) se divide en 400 tramos. Una búsqueda exhaustiva por programación dinámica encuentra el reparto que maximiza la suma del recuerdo de los medios, dentro de los límites que fijes. Encuentra el mejor reparto aunque las curvas tengan forma de S.</p>
       <p>El recuerdo de cada medio es el de su curva con la inversión semanal sostenida. Por defecto, ningún medio puede pasar de 3 veces la inversión media semanal del sector, para no salir del rango que han visto los datos. El factor se puede cambiar. La columna «semanas para el 80 %» indica cuánto tarda cada medio en acumular su efecto: en campañas cortas, los medios lentos rinden menos de lo que dice la curva.</p>
       <h3 style="margin-top:14px">Fuentes</h3>
-      <p>IOPE (notoriedad por medio y recuerdo publicitario) · InfoAdex (inversión por medio) · Kantar (GRP de TV). Bancos: BBVA, Sabadell, CaixaBank, Santander, ING, Bankinter y Abanca. Modelos de ene-2024 a mar-2026; curvas semanales de ene-2025 a mar-2026.</p>
+      <p>IOPE (notoriedad por medio y recuerdo publicitario) · InfoAdex (inversión por medio) · Kantar (GRP de TV). Marcas: <span id="xMarcas"></span>. Modelos de ene-2024 a mar-2026; curvas semanales de ene-2025 a mar-2026.</p>
       <h3 style="margin-top:14px">Limitaciones</h3>
-      <ul>
-        <li>Es la respuesta de un «banco medio». Para un banco concreto, el punto de partida (nivel base) es el suyo.</li>
-        <li>Fuera de TV, la inversión semanal es el mes repartido entre sus semanas.</li>
-        <li>Digital: IOPE lo mide agregado e InfoAdex no recoge search. Su curva de sector ajusta mal (R² 0,02).</li>
-        <li>Revistas y cine no tienen curva: la inversión del sector es mínima o la relación no es significativa.</li>
-        <li>No incluye efectos de creatividad, sinergias entre medios ni competencia.</li>
-      </ul>
+      <ul id="xLimites"></ul>
     </div>
   </div>
 </section>
 </main>
 
-<footer><div class="barra"><img src="cirentis.png" alt="CIRENTIS" style="height:18px"><span>Optimizador de notoriedad · v0.1 · Sector banca · Datos generados el <span id="fgen"></span>. Los datos que introduces no se guardan: todo se calcula en tu navegador.</span></div></footer>
+<footer><div class="barra"><img src="cirentis.png" alt="CIRENTIS" style="height:18px"><span>Optimizador de notoriedad · v0.2 · Sector <span class="xSectorMin"></span> · Datos generados el <span id="fgen"></span>. Los datos que introduces no se guardan: todo se calcula en tu navegador.</span></div></footer>
 
 <script>
-const D = window.DATOS;
+const SEC = (() => { const s = new URLSearchParams(location.search).get("sector"); return window.SECTORES[s] ? s : "banca"; })();
+const D = window.SECTORES[SEC];
 const COL = {TV:"#6730FB", Radio:"#E6B800", Diarios:"#F48EEF", Exterior:"#00BF9E", Digital:"#00B9FE"};
 const MEDIOS = D.medios.filter(m => m.curva !== "No" && m.panel);
-const ST = {curva:"panel", act:new Set(MEDIOS.filter(m => m.curva === "Sí").map(m => m.medio)), lim:{}, sim:null};
+const ST = {curva:"panel", act:new Set(MEDIOS.filter(m => m.activo ?? m.curva === "Sí").map(m => m.medio)), lim:{}, sim:null};
 const nf = (v, d=0) => (isFinite(v) ? v : 0).toLocaleString("es-ES", {minimumFractionDigits:d, maximumFractionDigits:d});
 const eur = v => nf(v) + " €";
 document.getElementById("fgen").textContent = D.generado;
+// ---------- textos del sector
+const txt = (sel, v) => document.querySelectorAll(sel).forEach(e => e.textContent = v);
+txt(".xSector", D.sector); txt(".xSectorMin", D.sector.toLowerCase()); txt(".xMarcasTxt", D.marcas_txt); txt(".xUnaMedia", "un" + (D.marca_media.startsWith("banco") ? " " : "a ") + D.marca_media);
+txt(".xSeparado", D.separado); txt(".xSeparadoMin", D.separado.toLowerCase());
+document.getElementById("xAviso").textContent = D.aviso;
+document.getElementById("xMarcas").textContent = D.marcas.slice(0, -1).join(", ") + " y " + D.marcas.at(-1);
+document.getElementById("xLimites").innerHTML = [`Es la respuesta de un${D.marca_media.startsWith("banco") ? "" : "a"} «${D.marca_media}». Para ${D.una_marca} concret${D.marca_media.startsWith("banco") ? "o" : "a"}, el punto de partida (nivel base) es el suyo.`,
+  "Fuera de TV, la inversión semanal es el mes repartido entre sus semanas.", ...D.limites, "No incluye efectos de creatividad, sinergias entre medios ni competencia."].map(t => `<li>${t}</li>`).join("");
+document.querySelectorAll(".segSector button").forEach(b => { b.classList.toggle("on", b.dataset.v === SEC);
+  b.onclick = () => { if (b.dataset.v !== SEC) location.href = "?sector=" + b.dataset.v + (location.hash || ""); }; });
+document.title = `Optimizador de notoriedad · ${D.sector} · CIRENTIS`;
 
 // ---------- navegación
 function ir(t){ document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
@@ -233,7 +244,7 @@ function ir(t){ document.querySelectorAll("nav button").forEach(b => b.classList
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => ir(b.dataset.t));
 
 // ---------- modelo
-const par = m => m[ST.curva];
+const par = m => m[ST.curva] || m.panel;
 const f = (m, x) => x <= 0 ? 0 : Math.exp(par(m).A - par(m).B / x);             // recuerdo con x k€/sem sostenidos
 const g = (m, x, W) => f(m, x);   // v0.1: recuerdo semanal con la inversión sostenida (lectura directa de la curva)
 const sem80 = m => Math.log(0.2) / Math.log(m.lw);   // semanas hasta el 80 % del efecto
@@ -286,7 +297,7 @@ function calcula(){
   const P = Math.max(0, +document.getElementById("pres").value || 0), W = Math.min(52, Math.max(1, Math.round(+document.getElementById("sem").value || 1)));
   const bw = P / W / 1000, act = MEDIOS.filter(m => ST.act.has(m.medio));
   document.getElementById("semanal").textContent = `Inversión semanal: ${nf(bw)} k€ durante ${W} semana${W > 1 ? "s" : ""}.`;
-  document.getElementById("fmaxT").textContent = `Hasta ${nf(fac("fmax"), 1)} veces lo que invierte de media un banco del sector. Evita salir del rango que han visto los datos.`;
+  document.getElementById("fmaxT").textContent = `Hasta ${nf(fac("fmax"), 1)} veces lo que invierte de media ${D.una_marca} del sector. Evita salir del rango que han visto los datos.`;
   document.getElementById("fminT").textContent = fac("fmin") > 0 ? `Al menos ${nf(fac("fmin"), 1)} veces la media del sector en cada medio elegido.` : "Sin mínimo: un medio puede quedarse a cero.";
   const kp = document.getElementById("kpis");
   if (!act.length || bw <= 0){ kp.innerHTML = '<div class="aviso" style="grid-column:1/-1">Elige al menos un medio e indica un presupuesto.</div>'; return; }
@@ -320,10 +331,10 @@ function descargar(){
   if (!R) return;
   const L = [["Medio", "k€ por semana", "Total campaña (€)", "% del mix", "Recuerdo (pts)", "Mix sector (k€/sem.)", "Recuerdo con mix sector (pts)"]];
   R.act.forEach((m, i) => L.push([m.medio, R.x[i].toFixed(2), Math.round(R.x[i] * 1000 * R.W), (R.x[i] / R.bw * 100).toFixed(1), R.y[i].toFixed(3), R.xs[i].toFixed(2), R.ys[i].toFixed(3)]));
-  L.push([]); L.push(["Presupuesto (€)", R.P]); L.push(["Semanas", R.W]); L.push(["Curvas", ST.curva === "panel" ? "Panel del sector" : "Bancos por separado"]);
+  L.push([]); L.push(["Presupuesto (€)", R.P]); L.push(["Semanas", R.W]); L.push(["Sector", D.sector]); L.push(["Curvas", ST.curva === "panel" ? "Panel del sector" : D.separado]);
   L.push(["Inversión máxima (× media sector)", fac("fmax")]); L.push(["Inversión mínima (× media sector)", fac("fmin")]);
   const csv = "﻿" + L.map(r => r.join(";")).join("\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = "optimizador_notoriedad_banca.csv"; a.click();
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = `optimizador_notoriedad_${SEC}.csv`; a.click();
 }
 
 // ---------- simulador
