@@ -94,7 +94,7 @@ footer .barra{font-size:12.5px;color:var(--gris)}
 <header>
   <div class="barra">
     <img src="cirentis.png" alt="CIRENTIS">
-    <div class="marca"><b>Optimizador de notoriedad <span class="beta">v0.2</span></b><span>Mix de medios frente al recuerdo publicitario · Sector <span class="xSector"></span></span></div>
+    <div class="marca"><b>Optimizador de notoriedad <span class="beta">v0.3</span></b><span>Mix de medios frente al recuerdo publicitario · Sector <span class="xSector"></span></span></div>
     <nav id="nav">
       <button data-t="inicio" class="on">Inicio</button>
       <button data-t="optimizador">Optimizador</button>
@@ -193,12 +193,12 @@ footer .barra{font-size:12.5px;color:var(--gris)}
     <div class="tarjeta">
       <h3>Cómo se construyen las curvas</h3>
       <ol>
-        <li><b>Un modelo por medio y marca.</b> Notoriedad publicitaria del medio (IOPE) frente a la inversión en ese medio con arrastre. En TV la inversión es GRP × coste medio por GRP.</li>
+        <li><b>Un modelo por medio y marca.</b> Notoriedad publicitaria del medio (IOPE) menos un suelo = coeficiente × inversión en ese medio con arrastre. El suelo es el percentil 10 de la notoriedad de la marca en el medio: lo que recuerda aunque apenas invierta. En TV la inversión es GRP × coste medio por GRP.</li>
         <li><b>Reparto del recuerdo.</b> El recuerdo publicitario total de cada marca se reparte entre medios con correlaciones simples y parciales.</li>
-        <li><b>Aporte de la publicidad.</b> Cada modelo separa la parte debida a la inversión del nivel base de la marca.</li>
-        <li><b>Panel del sector.</b> Por medio, un solo modelo con las <span class="xMarcasTxt"></span>. Cada marca tiene su propia base y el efecto de la inversión es común.</li>
+        <li><b>Aporte de la publicidad.</b> Todo lo que la notoriedad sube por encima del suelo se atribuye a la publicidad; el suelo es el nivel base.</li>
+        <li><b>Panel del sector.</b> Por medio, un solo modelo con las <span class="xMarcasTxt"></span>. Cada marca resta su propio suelo y el efecto de la inversión es común.</li>
         <li><b>Curva.</b> Se pasa a semanas y se ajusta recuerdo = e<sup>A − B/x</sup> con todas las semanas de las marcas del sector. La comprobación («<span class="xSeparadoMin"></span>») usa solo las marcas con modelo fiable propio.</li>
-        <li><b>Curvas débiles.</b> El efecto de la inversión es significativo en el panel, pero explica poco de los cambios de cada marca (R² dentro &lt; 0,10). Son orientativas.</li>
+        <li><b>Curvas débiles.</b> El efecto de la inversión es significativo en el panel, pero explica poco de los cambios de cada marca (R² dentro &lt; 0,10), o la curva semanal no ajusta. Son orientativas y no están activadas por defecto si no ajustan.</li>
       </ol>
     </div>
     <div class="tarjeta">
@@ -214,7 +214,7 @@ footer .barra{font-size:12.5px;color:var(--gris)}
 </section>
 </main>
 
-<footer><div class="barra"><img src="cirentis.png" alt="CIRENTIS" style="height:18px"><span>Optimizador de notoriedad · v0.2 · Sector <span class="xSectorMin"></span> · Datos generados el <span id="fgen"></span>. Los datos que introduces no se guardan: todo se calcula en tu navegador.</span></div></footer>
+<footer><div class="barra"><img src="cirentis.png" alt="CIRENTIS" style="height:18px"><span>Optimizador de notoriedad · v0.3 · Sector <span class="xSectorMin"></span> · Datos generados el <span id="fgen"></span>. Los datos que introduces no se guardan: todo se calcula en tu navegador.</span></div></footer>
 
 <script>
 const SEC = (() => { const s = new URLSearchParams(location.search).get("sector"); return window.SECTORES[s] ? s : "banca"; })();
